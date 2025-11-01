@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarHeader } from "./SidebarHeader";
 import { SidebarNavigation } from "./SidebarNavigation";
@@ -10,8 +10,21 @@ interface SidebarProps {
   user: any;
 }
 
+const SIDEBAR_STATE_KEY = "sidebar-collapsed";
+
+function getInitialSidebarState(): boolean {
+  if (typeof window === "undefined") return false;
+  const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
+  return savedState === "true";
+}
+
 export function Sidebar({ user }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(getInitialSidebarState);
+
+  // Save sidebar state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_STATE_KEY, String(isCollapsed));
+  }, [isCollapsed]);
 
   return (
     <div className="flex h-screen">
