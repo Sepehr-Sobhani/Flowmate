@@ -19,7 +19,7 @@ export function Sidebar({ user }: SidebarProps) {
       <div
         className={cn(
           "flex flex-col border-r bg-background transition-all duration-300",
-          isCollapsed ? "w-16" : "w-64"
+          isCollapsed ? "w-16 items-center" : "w-64"
         )}
       >
         <SidebarHeader
