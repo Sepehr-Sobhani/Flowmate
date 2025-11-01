@@ -5,9 +5,8 @@ import React, {
   useContext,
   useState,
   useEffect,
-  useCallback,
 } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useUser, useAuth as useClerkAuth } from "@clerk/nextjs";
 
 interface User {
   id: string;
@@ -32,62 +31,64 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
+  const { isSignedIn } = useClerkAuth();
+  const [dbUser, setDbUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const createUserFromSession = useCallback(
-    (backendUserId: string) => {
-      const userData: User = {
-        id: backendUserId,
-        username:
-          session?.user?.name || session?.user?.email?.split("@")[0] || "user",
-        email: session?.user?.email || "",
-        fullName: session?.user?.name || undefined,
-        avatarUrl: session?.user?.image || undefined,
-        isActive: true,
-        isVerified: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setUser(userData);
-      setToken("nextauth-session");
-      setIsLoading(false);
-    },
-    [session]
-  );
-
   useEffect(() => {
-    if (status === "loading") {
+    if (!isUserLoaded) {
       setIsLoading(true);
       return;
     }
 
-    // @ts-ignore - NextAuth session type compatibility
-    if (status === "authenticated" && session?.user?.id) {
-      // Create user object from NextAuth session data
-      // @ts-ignore - NextAuth session type compatibility
-      createUserFromSession(session.user.id);
+    if (isSignedIn && clerkUser) {
+      // Fetch or create user in your database
+      const syncUser = async () => {
+        try {
+          const response = await fetch("/api/users/sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clerkId: clerkUser.id,
+              email: clerkUser.primaryEmailAddress?.emailAddress,
+              username:
+                clerkUser.username ||
+                clerkUser.primaryEmailAddress?.emailAddress?.split("@")[0],
+              fullName: clerkUser.fullName,
+              avatarUrl: clerkUser.imageUrl,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to sync user");
+          }
+
+          const dbUserData = await response.json();
+          setDbUser(dbUserData);
+        } catch {
+          setDbUser(null);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      syncUser();
     } else {
-      // User is not authenticated - clear any existing data
-      setUser(null);
-      setToken(null);
+      setDbUser(null);
       setIsLoading(false);
     }
-  }, [session, status, createUserFromSession]);
+  }, [clerkUser, isSignedIn, isUserLoaded]);
 
   const logout = async () => {
-    await signOut({ callbackUrl: "/" });
-    setUser(null);
-    setToken(null);
+    // Clerk handles logout automatically with SignOutButton
+    // This is mainly for the context API
+    setDbUser(null);
   };
 
   const value: AuthContextType = {
-    user,
-    token,
-    isLoading: isLoading || status === "loading",
+    user: dbUser,
+    token: clerkUser?.id || null,
+    isLoading,
     logout,
   };
 

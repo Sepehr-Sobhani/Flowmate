@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { projectCreateSchema } from "@/lib/validations/project";
-import { authOptions } from "@/lib/auth-options";
+import { createDefaultPipelines } from "@/lib/pipeline-utils";
 
 async function getCurrentUser() {
-  const session = await getServerSession(authOptions);
-  // @ts-ignore - NextAuth session type compatibility
-  if (!session?.user?.id) {
+  const { userId } = await auth();
+  if (!userId) {
     return null;
   }
 
-  return await prisma.user.findUnique({
-    // @ts-ignore - NextAuth session type compatibility
-    where: { id: session.user.id },
+  return await prisma.user.findFirst({
+    where: { clerkId: userId },
   });
 }
 
@@ -113,6 +111,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Create default pipelines for the new project
+    await createDefaultPipelines(project.id);
 
     const formattedProject = {
       id: project.id,

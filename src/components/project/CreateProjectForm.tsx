@@ -47,13 +47,18 @@ export function CreateProjectForm({
     },
   });
 
-  const handleSubmit = (data: ProjectCreateInput) => {
+  const handleFormSubmit = (data: ProjectCreateInput) => {
     onSubmit(data);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    form.handleSubmit(handleFormSubmit)(e);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <FormField
           control={form.control}
           name="name"

@@ -1,27 +1,11 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Github, Mail, Loader2 } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function HomePage() {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSignIn = async (provider: string) => {
-    try {
-      setIsLoading(provider);
-      setError(null);
-      await signIn(provider, { callbackUrl: "/dashboard" });
-    } catch (_err) {
-      setError("Sign in failed. Please try again.");
-    } finally {
-      setIsLoading(null);
-    }
-  };
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -33,7 +17,15 @@ export default function HomePage() {
             </div>
             <span className="text-lg font-semibold text-primary">Flowmate</span>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
+            <Link href="/sign-in">
+              <Button variant="outline" size="sm">
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -49,47 +41,6 @@ export default function HomePage() {
               Organize tasks, track progress, and collaborate with your team.
               Flowmate makes project management simple and efficient.
             </p>
-
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 max-w-lg mx-auto">
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              </div>
-            )}
-
-            {/* OAuth Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center max-w-lg mx-auto">
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-14 px-8 text-base font-bold flex-1 text-primary transition-all duration-200 disabled:opacity-50"
-                onClick={() => handleSignIn("github")}
-                disabled={isLoading !== null}
-              >
-                {isLoading === "github" ? (
-                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                ) : (
-                  <Github className="mr-3 h-5 w-5" />
-                )}
-                {isLoading === "github" ? "Signing in..." : "GitHub"}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-14 px-8 text-base font-bold flex-1 text-primary transition-all duration-200 disabled:opacity-50"
-                onClick={() => handleSignIn("google")}
-                disabled={isLoading !== null}
-              >
-                {isLoading === "google" ? (
-                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                ) : (
-                  <Mail className="mr-3 h-5 w-5" />
-                )}
-                {isLoading === "google" ? "Signing in..." : "Google"}
-              </Button>
-            </div>
           </div>
 
           {/* Features Section */}

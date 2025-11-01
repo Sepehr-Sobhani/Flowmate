@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   id         String   @id @default(cuid())
+  clerkId    String?  @unique
   email      String   @unique
   username   String   @unique
   fullName   String?
@@ -25,6 +26,7 @@ model User {
   // Relations
   projects   ProjectMember[]
   ownedProjects Project[] @relation("ProjectOwner")
+  assignedTasks Task[]
 
   @@map("users")
 }
@@ -47,6 +49,8 @@ model Project {
   ownerId          String
   owner            User     @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   members          ProjectMember[]
+  pipelines        Pipeline[]
+  tasks            Task[]
 
   @@map("projects")
 }
@@ -75,4 +79,40 @@ enum ProjectRole {
   OWNER
   ADMIN
   MEMBER
+}
+
+model Pipeline {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  @@map("pipelines")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  points      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  pipelineId  String?
+  pipeline    Pipeline? @relation(fields: [pipelineId], references: [id], onDelete: SetNull)
+  assigneeId  String?
+  assignee    User?    @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@map("tasks")
 }

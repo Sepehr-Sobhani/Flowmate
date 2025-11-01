@@ -1,27 +1,9 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth-options";
 import type { ProjectCreateInput } from "@/lib/validations/project";
 
 // Helper function to get auth headers for client-side requests
 export function getAuthHeaders(): Record<string, string> {
-  // For client-side requests, we'll use NextAuth session
-  // This will be handled by the middleware
+  // For client-side requests, Clerk handles auth via middleware
   return {};
-}
-
-// Helper function to get auth headers for server-side requests
-export async function getServerAuthHeaders(): Promise<Record<string, string>> {
-  const session = await getServerSession(authOptions);
-
-  // @ts-ignore - NextAuth session type compatibility
-  if (!session?.user?.id) {
-    return {};
-  }
-
-  return {
-    // @ts-ignore - NextAuth session type compatibility
-    "x-user-id": session.user.id,
-  };
 }
 
 // API client functions
@@ -85,6 +67,96 @@ export const api = {
       }
       return response.json();
     },
+  },
+  // Pipelines
+  pipelines: {
+    getByProjectId: async (projectId: string) => {
+      const response = await fetch(`/api/projects/${projectId}/pipelines`);
+      if (!response.ok) {
+        if (response.status === 401) {
+          if (
+            typeof window !== "undefined" &&
+            window.location.pathname !== "/"
+          ) {
+            window.location.href = "/";
+          }
+          throw new Error("Authentication required");
+        }
+        throw new Error("Failed to fetch pipelines");
+      }
+      const data = await response.json();
+      return data.pipelines || [];
+    },
+  },
+};
+
+// Generic API client for making requests
+export const apiClient = {
+  get: async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      if (response.status === 401) {
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+        throw new Error("Authentication required");
+      }
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+    return response.json();
+  },
+  post: async (url: string, data: any) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+        throw new Error("Authentication required");
+      }
+      throw new Error(`Failed to post: ${response.statusText}`);
+    }
+    return response.json();
+  },
+  put: async (url: string, data: any) => {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+        throw new Error("Authentication required");
+      }
+      throw new Error(`Failed to put: ${response.statusText}`);
+    }
+    return response.json();
+  },
+  delete: async (url: string) => {
+    const response = await fetch(url, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+        throw new Error("Authentication required");
+      }
+      throw new Error(`Failed to delete: ${response.statusText}`);
+    }
+    return response.json();
   },
 };
 

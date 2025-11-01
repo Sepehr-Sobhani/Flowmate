@@ -2,7 +2,8 @@
 
 import { useParams } from "next/navigation";
 import { useProject } from "@/hooks/use-project";
-import { Card, CardContent } from "@/components/ui/card";
+import { usePipelines } from "@/hooks/use-pipelines";
+import { PipelineBoard } from "@/components/pipeline/PipelineBoard";
 
 interface ProjectContentProps {
   user: {
@@ -17,6 +18,7 @@ export function ProjectContent({}: ProjectContentProps) {
   const projectId = params.id as string;
 
   const { data: project } = useProject(projectId);
+  const { data: pipelines, refetch: refetchPipelines } = usePipelines(projectId);
 
   // Type assertion to help TypeScript understand the data structure
   const projectData = project as any;
@@ -24,63 +26,42 @@ export function ProjectContent({}: ProjectContentProps) {
   if (!projectData) return null;
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">
+          <h1 className="text-xl font-semibold tracking-tight text-primary">
             {projectData.name}
-            <p className="text-sm text-muted-foreground">
-              {new Date(projectData.createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "2-digit",
-                year: "numeric",
-              })}
-            </p>
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
-            {projectData.description || "No description provided"}
+          <p className="text-xs text-muted-foreground mt-1">
+            {new Date(projectData.createdAt).toLocaleDateString("en-US", {
+              month: "long",
+              day: "2-digit",
+              year: "numeric",
+            })}
           </p>
+          {projectData.description && (
+            <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+              {projectData.description}
+            </p>
+          )}
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-xs px-3 py-1.5 rounded-full font-medium bg-primary/10 text-primary border border-primary/20">
+          <span className="text-xs px-2 py-1 rounded-full font-medium bg-primary/10 text-primary border border-primary/20">
             {projectData.visibility === "private" ? "Private" : "Public"}
           </span>
         </div>
       </div>
 
-      {/* Project Actions */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-primary">
-          Quick Actions
-        </h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all duration-200 cursor-pointer">
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-primary mb-2">View Tasks</h3>
-              <p className="text-sm text-muted-foreground">
-                Manage and track your project tasks
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all duration-200 cursor-pointer">
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-primary mb-2">Team Members</h3>
-              <p className="text-sm text-muted-foreground">
-                Invite and manage team collaboration
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all duration-200 cursor-pointer">
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-primary mb-2">Settings</h3>
-              <p className="text-sm text-muted-foreground">
-                Configure project preferences and options
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {/* Divider */}
+      <div className="border-b border-border mb-6" />
+
+      {/* Pipeline Board */}
+      <PipelineBoard
+        projectId={projectId}
+        pipelines={pipelines}
+        onPipelineUpdate={refetchPipelines}
+      />
     </div>
   );
 }

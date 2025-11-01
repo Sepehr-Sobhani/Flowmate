@@ -1,5 +1,4 @@
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { SignOutButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,13 +17,6 @@ interface UserSectionProps {
 }
 
 export function UserSection({ user, isCollapsed }: UserSectionProps) {
-  const { logout } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
   return (
     <div className="border-t p-3">
       <DropdownMenu>
@@ -70,13 +62,14 @@ export function UserSection({ user, isCollapsed }: UserSectionProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="my-1" />
-          <DropdownMenuItem
-            onClick={handleLogout}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md p-2 cursor-pointer transition-colors"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
+          <SignOutButton redirectUrl="/">
+            <DropdownMenuItem
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md p-2 cursor-pointer transition-colors"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </SignOutButton>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
