@@ -10,9 +10,9 @@ export async function POST(
   try {
     const { id: projectId } = await params;
     const body: CreateTaskRequest = await request.json();
-    const { error } = await checkProjectAccess(projectId);
+    const accessResult = await checkProjectAccess(projectId);
 
-    if (error) return error;
+    if (accessResult.error) return accessResult.error;
 
     // If pipelineId is provided, verify it belongs to the project
     if (body.pipelineId) {

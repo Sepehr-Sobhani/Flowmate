@@ -10,9 +10,9 @@ export async function GET(
 ) {
   try {
     const { id: projectId } = await params;
-    const { error } = await checkProjectAccess(projectId);
+    const accessResult = await checkProjectAccess(projectId);
 
-    if (error) return error;
+    if (accessResult.error) return accessResult.error;
 
     const pipelines = await prisma.pipeline.findMany({
       where: {
@@ -50,9 +50,9 @@ export async function POST(
   try {
     const { id: projectId } = await params;
     const body: CreatePipelineRequest = await request.json();
-    const { error } = await checkProjectAccess(projectId, true);
+    const accessResult = await checkProjectAccess(projectId, true);
 
-    if (error) return error;
+    if (accessResult.error) return accessResult.error;
 
     // Get the next position
     const lastPipeline = await prisma.pipeline.findFirst({
