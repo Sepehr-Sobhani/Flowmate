@@ -194,7 +194,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
       {/* Create Project Dialog */}
       <Dialog open={showCreateProject} onOpenChange={setShowCreateProject}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
           </DialogHeader>
