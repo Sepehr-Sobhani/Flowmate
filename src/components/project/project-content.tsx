@@ -18,7 +18,8 @@ export function ProjectContent({}: ProjectContentProps) {
   const projectId = params.id as string;
 
   const { data: project } = useProject(projectId);
-  const { data: pipelines, refetch: refetchPipelines } = usePipelines(projectId);
+  const { data: pipelines, refetch: refetchPipelines } =
+    usePipelines(projectId);
 
   // Type assertion to help TypeScript understand the data structure
   const projectData = project as any;

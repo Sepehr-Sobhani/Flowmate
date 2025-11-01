@@ -1,11 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useUser, useAuth as useClerkAuth } from "@clerk/nextjs";
 
 interface User {

@@ -63,9 +63,7 @@ export function UserSection({ user, isCollapsed }: UserSectionProps) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="my-1" />
           <SignOutButton redirectUrl="/">
-            <DropdownMenuItem
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md p-2 cursor-pointer transition-colors"
-            >
+            <DropdownMenuItem className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md p-2 cursor-pointer transition-colors">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
