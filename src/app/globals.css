@@ -15,8 +15,8 @@
   --color-primary-foreground: oklch(0.421 0.095 57.708);
   --color-secondary: oklch(0.967 0.001 286.375);
   --color-secondary-foreground: oklch(0.21 0.006 285.885);
-    --color-muted: oklch(0.967 0.001 286.375);
-    --color-muted-foreground: oklch(0.05 0.005 285.823);
+  --color-muted: oklch(0.967 0.001 286.375);
+  --color-muted-foreground: oklch(0.05 0.005 285.823);
   --color-accent: oklch(0.967 0.001 286.375);
   --color-accent-foreground: oklch(0.21 0.006 285.885);
   --color-destructive: oklch(0.577 0.245 27.325);
@@ -97,7 +97,7 @@
     --sidebar-accent-foreground: 1 0 0;
     --sidebar-border: 1 0 0 / 10%;
     --sidebar-ring: 0.421 0.095 57.708;
-    
+
     /* Also set @theme colors for dark mode */
     --color-background: oklch(0.141 0.005 285.823);
     --color-foreground: oklch(1 0 0);
