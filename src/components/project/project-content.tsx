@@ -55,7 +55,7 @@ export function ProjectContent({}: ProjectContentProps) {
       </div>
 
       {/* Divider */}
-      <div className="border-b border-border mb-6" />
+      <div className="border-b border-border mb-2" />
 
       {/* Pipeline Board */}
       <PipelineBoard

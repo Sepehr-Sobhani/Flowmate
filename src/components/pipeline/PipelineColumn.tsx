@@ -37,7 +37,7 @@ export function PipelineColumn({
   );
 
   return (
-    <div className="flex-shrink-0 w-80 bg-muted/30 rounded-lg h-full flex flex-col">
+    <div className="flex-shrink-0 w-80 bg-muted/60 rounded-lg h-full flex flex-col">
       {/* Column Header */}
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
