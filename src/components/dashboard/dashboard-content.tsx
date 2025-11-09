@@ -16,15 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, Users, Eye, EyeOff } from "lucide-react";
 
-interface DashboardContentProps {
-  user: {
-    id: string;
-    username: string;
-    fullName?: string;
-  };
-}
-
-export function DashboardContent({ user }: DashboardContentProps) {
+export function DashboardContent() {
   const router = useRouter();
   const [showCreateProject, setShowCreateProject] = useState(false);
 
@@ -50,15 +42,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
   return (
     <>
       <div className="space-y-8">
-        {/* Welcome Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Welcome back, {user.fullName || user.username}!
-            </h1>
-          </div>
-        </div>
-
         {/* Recent Projects */}
         {projectsList && projectsList.length > 0 && (
           <div className="space-y-4">
