@@ -16,7 +16,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="flex h-screen bg-background">
         <Sidebar user={user} />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <main className="flex-1 overflow-y-auto px-3 pt-4">{children}</main>
+          <main className="flex-1 overflow-y-auto px-3 pt-4 flex flex-col">
+            {children}
+          </main>
         </div>
       </div>
     </AuthGuard>

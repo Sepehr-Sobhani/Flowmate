@@ -27,9 +27,9 @@ export function ProjectContent({}: ProjectContentProps) {
   if (!projectData) return null;
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-primary">
             {projectData.name}
@@ -55,14 +55,16 @@ export function ProjectContent({}: ProjectContentProps) {
       </div>
 
       {/* Divider */}
-      <div className="border-b border-border mb-2" />
+      <div className="border-b border-border mb-2 shrink-0" />
 
       {/* Pipeline Board */}
-      <PipelineBoard
-        projectId={projectId}
-        pipelines={pipelines}
-        onPipelineUpdate={refetchPipelines}
-      />
+      <div className="flex-1 min-h-0">
+        <PipelineBoard
+          projectId={projectId}
+          pipelines={pipelines}
+          onPipelineUpdate={refetchPipelines}
+        />
+      </div>
     </div>
   );
 }

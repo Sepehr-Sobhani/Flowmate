@@ -38,9 +38,9 @@ export function PipelineBoard({
   }
 
   return (
-    <div className="w-full h-[calc(100vh-120px)]">
+    <div className="w-full h-full">
       {/* Pipeline Board */}
-      <div className="flex space-x-2 overflow-x-auto h-full">
+      <div className="flex space-x-2 overflow-x-auto h-full pb-2">
         {pipelines.map((pipeline) => (
           <PipelineColumn
             key={pipeline.id}
