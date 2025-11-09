@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface UserSectionProps {
   user: any;
@@ -25,7 +26,7 @@ export function UserSection({ user, isCollapsed }: UserSectionProps) {
             variant="ghost"
             className="w-full justify-start p-2 h-auto hover:bg-primary/10 transition-colors"
           >
-            <Avatar className="h-6 w-6 mr-2">
+            <Avatar className="h-6 w-6 shrink-0">
               <AvatarImage
                 src={user?.avatar_url}
                 alt={user?.full_name || user?.username}
@@ -36,14 +37,21 @@ export function UserSection({ user, isCollapsed }: UserSectionProps) {
                   .toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {!isCollapsed && (
-              <div className="flex-1 text-left">
-                <p className="text-xs font-medium">
-                  {user?.full_name || user?.username}
-                </p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-            )}
+            <div
+              className={cn(
+                "flex-1 text-left overflow-hidden transition-all duration-300",
+                isCollapsed
+                  ? "max-w-0 opacity-0"
+                  : "max-w-full opacity-100 ml-2"
+              )}
+            >
+              <p className="text-xs font-medium whitespace-nowrap">
+                {user?.full_name || user?.username}
+              </p>
+              <p className="text-xs text-muted-foreground whitespace-nowrap">
+                {user?.email}
+              </p>
+            </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
