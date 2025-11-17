@@ -82,6 +82,31 @@ export const api = {
       );
       return result.task;
     },
+    update: async (
+      projectId: string,
+      taskId: string,
+      data: {
+        title?: string;
+        description?: string;
+        points?: number | null;
+        pipelineId?: string;
+        assigneeId?: string;
+      }
+    ): Promise<Task> => {
+      const response = await fetch(
+        `/api/projects/${projectId}/tasks/${taskId}`,
+        {
+          method: "PUT",
+          headers: HEADERS,
+          body: JSON.stringify(data),
+        }
+      );
+      const result = await handleResponse<{ task: Task }>(
+        response,
+        "Failed to update task"
+      );
+      return result.task;
+    },
   },
 };
 

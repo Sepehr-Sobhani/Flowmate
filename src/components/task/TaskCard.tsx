@@ -16,9 +16,14 @@ import { Button } from "@/components/ui/button";
 interface TaskCardProps {
   task: Task;
   onUpdate: () => void;
+  onClick?: () => void;
 }
 
-export function TaskCard({ task, onUpdate: _onUpdate }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onUpdate: _onUpdate,
+  onClick,
+}: TaskCardProps) {
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -29,7 +34,10 @@ export function TaskCard({ task, onUpdate: _onUpdate }: TaskCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+    <Card
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={onClick}
+    >
       <CardContent className="p-3">
         <div className="space-y-2">
           {/* Header */}
@@ -38,13 +46,12 @@ export function TaskCard({ task, onUpdate: _onUpdate }: TaskCardProps) {
               {task.title}
             </h4>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                   <MoreVertical className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit Task</DropdownMenuItem>
                 <DropdownMenuItem>Move to Stage</DropdownMenuItem>
                 <DropdownMenuItem className="text-red-600">
                   Delete Task

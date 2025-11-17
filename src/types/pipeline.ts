@@ -69,7 +69,7 @@ export interface CreateTaskRequest {
 export interface UpdateTaskRequest {
   title?: string;
   description?: string;
-  points?: number;
+  points?: number | null;
   pipelineId?: string;
   assigneeId?: string;
 }

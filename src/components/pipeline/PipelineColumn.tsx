@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Pipeline } from "@/types/pipeline";
+import { Pipeline, Task } from "@/types/pipeline";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical } from "lucide-react";
-import { TaskCard } from "./TaskCard";
-import { CreateTaskDialog } from "./CreateTaskDialog";
+import { TaskCard } from "@/components/task/TaskCard";
+import { CreateTaskDialog } from "@/components/task/CreateTaskDialog";
+import { TaskDetailsDialog } from "@/components/task/TaskDetailsDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,10 +26,22 @@ export function PipelineColumn({
   onTaskUpdate,
 }: PipelineColumnProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   const handleTaskCreated = () => {
     onTaskUpdate();
     setIsCreateDialogOpen(false);
+  };
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleTaskUpdated = () => {
+    onTaskUpdate();
+    setIsDetailsDialogOpen(false);
   };
 
   const totalPoints = pipeline.tasks.reduce(
@@ -70,7 +83,6 @@ export function PipelineColumn({
         </div>
 
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>No limit</span>
           <span>
             {pipeline.tasks.length} Tasks / {totalPoints} Points
           </span>
@@ -92,7 +104,12 @@ export function PipelineColumn({
           ) : (
             <div className="space-y-3">
               {pipeline.tasks.map((task) => (
-                <TaskCard key={task.id} task={task} onUpdate={onTaskUpdate} />
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onUpdate={onTaskUpdate}
+                  onClick={() => handleTaskClick(task)}
+                />
               ))}
             </div>
           )}
@@ -105,6 +122,17 @@ export function PipelineColumn({
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onSuccess={handleTaskCreated}
+      />
+
+      <TaskDetailsDialog
+        task={selectedTask}
+        projectId={projectId}
+        isOpen={isDetailsDialogOpen}
+        onClose={() => {
+          setIsDetailsDialogOpen(false);
+          setSelectedTask(null);
+        }}
+        onSuccess={handleTaskUpdated}
       />
     </div>
   );

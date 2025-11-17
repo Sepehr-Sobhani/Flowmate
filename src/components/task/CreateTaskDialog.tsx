@@ -107,7 +107,7 @@ export function CreateTaskDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Task Title</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Fix login bug" {...field} />
                   </FormControl>
