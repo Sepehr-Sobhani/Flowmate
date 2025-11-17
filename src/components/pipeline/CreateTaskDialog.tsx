@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,13 +22,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { apiClient } from "@/lib/api-client";
+import { useCreateTask } from "@/hooks/use-task-mutations";
 import { toast } from "sonner";
 
 const createTaskSchema = z.object({
   title: z.string().min(1, "Task title is required"),
   description: z.string().optional(),
-  points: z.number().min(0).max(100).optional(),
 });
 
 type CreateTaskFormData = z.infer<typeof createTaskSchema>;
@@ -49,25 +47,21 @@ export function CreateTaskDialog({
   onClose,
   onSuccess,
 }: CreateTaskDialogProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const createTaskMutation = useCreateTask(projectId);
 
   const form = useForm<CreateTaskFormData>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
       title: "",
       description: "",
-      points: undefined,
     },
   });
 
   const handleFormSubmit = async (data: CreateTaskFormData) => {
     try {
-      setIsLoading(true);
-
-      await apiClient.post(`/projects/${projectId}/tasks`, {
+      await createTaskMutation.mutateAsync({
         title: data.title,
         description: data.description || undefined,
-        points: data.points || undefined,
         pipelineId: pipelineId || undefined,
       });
 
@@ -82,8 +76,6 @@ export function CreateTaskDialog({
       toast.error("Error", {
         description: "Failed to create task. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -99,7 +91,7 @@ export function CreateTaskDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create Task</DialogTitle>
           <DialogDescription>
@@ -134,33 +126,8 @@ export function CreateTaskDialog({
                     <Textarea
                       placeholder="Describe the task in detail..."
                       className="resize-none"
-                      rows={3}
+                      rows={5}
                       {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="points"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Story Points (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="e.g., 5"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? parseInt(e.target.value) : undefined
-                        )
-                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -173,12 +140,12 @@ export function CreateTaskDialog({
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                disabled={isLoading}
+                disabled={createTaskMutation.isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Creating..." : "Create Task"}
+              <Button type="submit" disabled={createTaskMutation.isPending}>
+                {createTaskMutation.isPending ? "Creating..." : "Create Task"}
               </Button>
             </DialogFooter>
           </form>

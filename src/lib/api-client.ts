@@ -1,166 +1,8 @@
 import type { ProjectCreateInput } from "@/lib/validations/project";
+import type { Project } from "@/types/api-common";
+import type { Pipeline } from "@/types/pipeline";
+import type { Task } from "@/types/pipeline";
 
-// Helper function to get auth headers for client-side requests
-export function getAuthHeaders(): Record<string, string> {
-  // For client-side requests, Clerk handles auth via middleware
-  return {};
-}
-
-// API client functions
-export const api = {
-  // Projects
-  projects: {
-    getAll: async () => {
-      const response = await fetch("/api/projects");
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Handle 401 by redirecting to login
-          if (
-            typeof window !== "undefined" &&
-            window.location.pathname !== "/"
-          ) {
-            window.location.href = "/";
-          }
-          throw new Error("Authentication required");
-        }
-        throw new Error("Failed to fetch projects");
-      }
-      return response.json();
-    },
-    getById: async (id: string) => {
-      const response = await fetch(`/api/projects/${id}`);
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Handle 401 by redirecting to login
-          if (
-            typeof window !== "undefined" &&
-            window.location.pathname !== "/"
-          ) {
-            window.location.href = "/";
-          }
-          throw new Error("Authentication required");
-        }
-        throw new Error("Failed to fetch project");
-      }
-      return response.json();
-    },
-    create: async (data: ProjectCreateInput) => {
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Handle 401 by redirecting to login
-          if (
-            typeof window !== "undefined" &&
-            window.location.pathname !== "/"
-          ) {
-            window.location.href = "/";
-          }
-          throw new Error("Authentication required");
-        }
-        throw new Error("Failed to create project");
-      }
-      return response.json();
-    },
-  },
-  // Pipelines
-  pipelines: {
-    getByProjectId: async (projectId: string) => {
-      const response = await fetch(`/api/projects/${projectId}/pipelines`);
-      if (!response.ok) {
-        if (response.status === 401) {
-          if (
-            typeof window !== "undefined" &&
-            window.location.pathname !== "/"
-          ) {
-            window.location.href = "/";
-          }
-          throw new Error("Authentication required");
-        }
-        throw new Error("Failed to fetch pipelines");
-      }
-      const data = await response.json();
-      return data.pipelines || [];
-    },
-  },
-};
-
-// Generic API client for making requests
-export const apiClient = {
-  get: async (url: string) => {
-    const response = await fetch(url);
-    if (!response.ok) {
-      if (response.status === 401) {
-        if (typeof window !== "undefined" && window.location.pathname !== "/") {
-          window.location.href = "/";
-        }
-        throw new Error("Authentication required");
-      }
-      throw new Error(`Failed to fetch: ${response.statusText}`);
-    }
-    return response.json();
-  },
-  post: async (url: string, data: any) => {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      if (response.status === 401) {
-        if (typeof window !== "undefined" && window.location.pathname !== "/") {
-          window.location.href = "/";
-        }
-        throw new Error("Authentication required");
-      }
-      throw new Error(`Failed to post: ${response.statusText}`);
-    }
-    return response.json();
-  },
-  put: async (url: string, data: any) => {
-    const response = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      if (response.status === 401) {
-        if (typeof window !== "undefined" && window.location.pathname !== "/") {
-          window.location.href = "/";
-        }
-        throw new Error("Authentication required");
-      }
-      throw new Error(`Failed to put: ${response.statusText}`);
-    }
-    return response.json();
-  },
-  delete: async (url: string) => {
-    const response = await fetch(url, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      if (response.status === 401) {
-        if (typeof window !== "undefined" && window.location.pathname !== "/") {
-          window.location.href = "/";
-        }
-        throw new Error("Authentication required");
-      }
-      throw new Error(`Failed to delete: ${response.statusText}`);
-    }
-    return response.json();
-  },
-};
-
-// Helper function to handle 401 errors (kept for backward compatibility)
 export async function handleAuthError(response: Response): Promise<boolean> {
   if (response.status === 401) {
     // Redirect to login if we're not already there
@@ -168,7 +10,106 @@ export async function handleAuthError(response: Response): Promise<boolean> {
       window.location.href = "/";
     }
 
-    return true; // Indicates we handled the error
+    return true;
   }
-  return false; // Error not handled
+  return false;
 }
+
+// Common headers for JSON requests
+const HEADERS = {
+  "Content-Type": "application/json",
+};
+
+async function handleResponse<T>(
+  response: Response,
+  errorMessage: string
+): Promise<T> {
+  if (!response.ok) {
+    if (await handleAuthError(response)) {
+      throw new Error("Authentication required");
+    }
+    throw new Error(errorMessage);
+  }
+  return response.json();
+}
+
+export const api = {
+  projects: {
+    getAll: async (): Promise<Project[]> => {
+      const response = await fetch("/api/projects");
+      return handleResponse<Project[]>(response, "Failed to fetch projects");
+    },
+    getById: async (id: string): Promise<Project> => {
+      const response = await fetch(`/api/projects/${id}`);
+      return handleResponse<Project>(response, "Failed to fetch project");
+    },
+    create: async (data: ProjectCreateInput): Promise<Project> => {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: HEADERS,
+        body: JSON.stringify(data),
+      });
+      return handleResponse<Project>(response, "Failed to create project");
+    },
+  },
+  pipelines: {
+    getByProjectId: async (projectId: string): Promise<Pipeline[]> => {
+      const response = await fetch(`/api/projects/${projectId}/pipelines`);
+      const data = await handleResponse<{ pipelines?: Pipeline[] }>(
+        response,
+        "Failed to fetch pipelines"
+      );
+      return data.pipelines || [];
+    },
+  },
+  tasks: {
+    create: async (
+      projectId: string,
+      data: {
+        title: string;
+        description?: string;
+        pipelineId?: string;
+      }
+    ): Promise<Task> => {
+      const response = await fetch(`/api/projects/${projectId}/tasks`, {
+        method: "POST",
+        headers: HEADERS,
+        body: JSON.stringify(data),
+      });
+      const result = await handleResponse<{ task: Task }>(
+        response,
+        "Failed to create task"
+      );
+      return result.task;
+    },
+  },
+};
+
+export const apiClient = {
+  get: async (url: string) => {
+    const response = await fetch(url);
+    return handleResponse(response, `Failed to fetch: ${response.statusText}`);
+  },
+  post: async (url: string, data: any) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: HEADERS,
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response, `Failed to post: ${response.statusText}`);
+  },
+  put: async (url: string, data: any) => {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: HEADERS,
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response, `Failed to put: ${response.statusText}`);
+  },
+  delete: async (url: string) => {
+    const response = await fetch(url, {
+      method: "DELETE",
+    });
+    return handleResponse(response, `Failed to delete: ${response.statusText}`);
+  },
+};
