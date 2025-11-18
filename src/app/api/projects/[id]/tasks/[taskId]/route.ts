@@ -82,3 +82,37 @@ export async function PUT(
     return handleApiError(error, "Failed to update task");
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; taskId: string }> }
+) {
+  try {
+    const { id: projectId, taskId } = await params;
+    const accessResult = await checkProjectAccess(projectId, true);
+
+    if (accessResult.error) return accessResult.error;
+
+    // Verify the task belongs to the project
+    const existingTask = await prisma.task.findFirst({
+      where: {
+        id: taskId,
+        projectId,
+      },
+    });
+
+    if (!existingTask) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    await prisma.task.delete({
+      where: {
+        id: taskId,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return handleApiError(error, "Failed to delete task");
+  }
+}

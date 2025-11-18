@@ -177,7 +177,13 @@ export function TaskDetailsDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent
+        className="sm:max-w-[600px]"
+        onOpenAutoFocus={(e) => {
+          // Prevent default focus on close button
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Task" : "Task Details"}</DialogTitle>
           <DialogDescription>

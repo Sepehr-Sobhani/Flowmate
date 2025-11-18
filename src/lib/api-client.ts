@@ -107,6 +107,19 @@ export const api = {
       );
       return result.task;
     },
+    delete: async (projectId: string, taskId: string): Promise<void> => {
+      const response = await fetch(
+        `/api/projects/${projectId}/tasks/${taskId}`,
+        {
+          method: "DELETE",
+          headers: HEADERS,
+        }
+      );
+      await handleResponse<{ success: boolean }>(
+        response,
+        "Failed to delete task"
+      );
+    },
   },
 };
 

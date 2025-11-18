@@ -39,3 +39,15 @@ export function useUpdateTask(projectId: string) {
     },
   });
 }
+
+export function useDeleteTask(projectId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskId: string) => api.tasks.delete(projectId, taskId),
+    onSuccess: () => {
+      // Invalidate pipelines query to refetch without the deleted task
+      queryClient.invalidateQueries({ queryKey: ["pipelines", projectId] });
+    },
+  });
+}

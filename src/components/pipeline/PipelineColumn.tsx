@@ -107,6 +107,7 @@ export function PipelineColumn({
                 <TaskCard
                   key={task.id}
                   task={task}
+                  projectId={projectId}
                   onUpdate={onTaskUpdate}
                   onClick={() => handleTaskClick(task)}
                 />
